@@ -8,6 +8,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import it.polito.tdp.PremierLeague.model.Adiacenza;
+import it.polito.tdp.PremierLeague.model.Match;
 import it.polito.tdp.PremierLeague.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -39,25 +42,56 @@ public class FXMLController {
     private TextField txtMinuti; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbMese"
-    private ComboBox<?> cmbMese; // Value injected by FXMLLoader
+    private ComboBox<Integer> cmbMese; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbM1"
-    private ComboBox<?> cmbM1; // Value injected by FXMLLoader
+    private ComboBox<Match> cmbM1; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbM2"
-    private ComboBox<?> cmbM2; // Value injected by FXMLLoader
+    private ComboBox<Match> cmbM2; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
 
     @FXML
     void doConnessioneMassima(ActionEvent event) {
+    	txtResult.clear();
+    	txtResult.appendText("coppie con connessione massima \n\n");
     	
+    	List<Adiacenza> result = model.getMaggioreNumGiocatori();
+    	for(Adiacenza a: result) {
+    		txtResult.appendText(a.toString()+"\n");
+    	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	txtResult.clear();
+    	Integer MIN = 0; 
     	
+    	if(txtMinuti.getText().isEmpty()) {
+    		txtResult.setText("inserisci un numero di minuti");
+    		return;
+    	}
+    	try {
+    		MIN = Integer.parseInt(txtMinuti.getText());
+    		
+    	}catch(NumberFormatException n) {
+    		txtResult.setText("il numero di  minuti deve essere un intero ");
+    		return ;
+    	}
+    	
+    	Integer mese = this.cmbMese.getValue();
+    	if(mese == null) {
+    		txtResult.setText("scegli un mese ");
+    		return ;
+    	}
+    	model.creaGrafo(MIN, mese);
+    	
+    	txtResult.appendText("Grafo Creato: \n #Vertici "+model.NumVertici()+"\n#Archi "+model.NumArchi());
+    	
+    	this.cmbM1.getItems().addAll(model.getAllMatch());
+    	this.cmbM2.getItems().addAll(model.getAllMatch());
     }
 
     @FXML
@@ -79,6 +113,12 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	List<Integer> mesi = new ArrayList<>();
+    	
+    	for(int i=1; i< 13; i++) {
+    		mesi.add(i);
+    	}
+    	this.cmbMese.getItems().addAll(mesi);
   
     }
     
